@@ -1,0 +1,70 @@
+package com.example.murid3314
+
+import android.os.Bundle
+import android.util.Log
+import android.widget.ListView
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+import org.json.JSONObject
+import kotlin.math.tan
+
+
+class Pengumuman : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.pengumuman)
+
+        var juduls:MutableList<String> = mutableListOf()
+        var tanggals:MutableList<String> = mutableListOf()
+
+        var lv_pengumuman:ListView = findViewById(R.id.lv_pengumuman)
+
+        val minta = Volley.newRequestQueue(this)
+        val mintadata:StringRequest = object : StringRequest (
+            Request.Method.POST,
+            Backend().url_pengumuman,
+            Response.Listener<String> { response ->
+
+                Log.d("hasil", response.toString())
+
+                val dataarray = JSONObject(response).getJSONArray("data")
+                for (i in 0 until dataarray.length()) {
+                    val jdl = dataarray.getJSONObject(i).getString("judul_pengumuman")
+                    val tgl = dataarray.getJSONObject(i).getString("tanggal_pengumuman")
+
+                    juduls.add(jdl)
+                    tanggals.add(tgl)
+                }
+                var perulangandata = Pengumuman_item (this, juduls, tanggals)
+                lv_pengumuman.adapter = perulangandata
+            },
+            Response.ErrorListener { eek ->
+                Log.d("eekror", eek.toString())
+            }
+        ){
+            override fun getParams(): MutableMap<String, String>? {
+                val bawaan:MutableMap<String, String> = HashMap()
+                bawaan.put("kode", "amikomoke")
+
+                return bawaan
+            }
+        }
+        minta.add(mintadata)
+    }
+}
+
+
+
+
+
+
+
+
+
+
